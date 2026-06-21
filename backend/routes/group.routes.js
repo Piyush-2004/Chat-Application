@@ -54,7 +54,8 @@ router.post('/create', async (req, res) => {
     );
     const groupId = groupResult.insertId;
 
-    const insertValues = members.map((userId) => [groupId, userId]);
+    const allMembers = Array.from(new Set([...members.map(Number), Number(created_by)]));
+    const insertValues = allMembers.map((userId) => [groupId, userId]);
     await db.query('INSERT INTO group_members (group_id, user_id) VALUES ?', [insertValues]);
 
     await db.end();
@@ -96,16 +97,35 @@ router.get('/:groupId/messages', async (req, res) => {
     const db = await mysql_db();
     const [messages] = await db.execute(
       `
-      SELECT gm.id, gm.group_id, gm.sender_id, u.username, gm.text, gm.created_at
-      FROM group_messages gm
-      JOIN users u ON gm.sender_id = u.id
-      WHERE gm.group_id = ?
-      ORDER BY gm.created_at ASC
-      `,
+      SELECT gm.id, gm.group_id, gm.sender_id, u.username, gm.text, gm.created_at, gm.reactions
+       FROM group_messages gm
+       JOIN users u ON gm.sender_id = u.id
+       WHERE gm.group_id = ?
+       ORDER BY gm.created_at ASC`,
       [groupId]
     );
     await db.end();
-    res.json(messages);
+
+    const parsedMessages = messages.map(row => {
+      let parsedReactions = [];
+      if (row.reactions) {
+        try {
+          if (typeof row.reactions === 'string') {
+            parsedReactions = JSON.parse(row.reactions);
+          } else if (Array.isArray(row.reactions)) {
+            parsedReactions = row.reactions;
+          }
+        } catch (e) {
+          console.error('Error parsing group message reaction:', e);
+        }
+      }
+      return {
+        ...row,
+        reactions: parsedReactions
+      };
+    });
+
+    res.json(parsedMessages);
   } catch (err) {
     console.error('Error fetching group messages:', err);
     res.status(500).json({ message: 'Server error' });

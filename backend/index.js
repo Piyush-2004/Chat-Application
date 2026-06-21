@@ -22,7 +22,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true
   }
@@ -126,6 +126,7 @@ io.on('connection', (socket) => {
     const { messageId, reaction } = data;
     try {
       const db = await mysql_db();
+      // Check if one-on-one message exists
       const [rows] = await db.execute('SELECT reactions FROM messages WHERE id = ?', [messageId]);
       if (rows.length > 0) {
         const message = rows[0];
@@ -140,7 +141,25 @@ io.on('connection', (socket) => {
         reactions.push(reaction);
         await messageModel.updateMessageReactions(messageId, JSON.stringify(reactions));
         io.emit('reaction-added', { messageId, reactions });
-        console.log(`Reaction ${reaction.emoji} added to message ${messageId}`);
+        console.log(`Reaction ${reaction.emoji} added to one-on-one message ${messageId}`);
+      } else {
+        // Check group message
+        const [groupRows] = await db.execute('SELECT reactions FROM group_messages WHERE id = ?', [messageId]);
+        if (groupRows.length > 0) {
+          const message = groupRows[0];
+          let reactions = [];
+
+          if (typeof message.reactions === 'string') {
+            reactions = JSON.parse(message.reactions);
+          } else if (Array.isArray(message.reactions)) {
+            reactions = message.reactions;
+          }
+
+          reactions.push(reaction);
+          await db.execute('UPDATE group_messages SET reactions = ? WHERE id = ?', [JSON.stringify(reactions), messageId]);
+          io.emit('reaction-added', { messageId, reactions });
+          console.log(`Reaction ${reaction.emoji} added to group message ${messageId}`);
+        }
       }
       await db.end();
     } catch (err) {
@@ -161,7 +180,11 @@ io.on('connection', (socket) => {
 
       const messageId = await messageModel.createMessage(newMessage);
       const forwardedMessage = { ...message, id: messageId, sender_id, receiver_id, created_at: newMessage.created_at, reactions: [] };
+      
+      // Emit to both sender and receiver rooms
+      io.to(sender_id.toString()).emit('message-forwarded', { receiverId: receiver_id, message: forwardedMessage });
       io.to(receiver_id.toString()).emit('message-forwarded', { receiverId: receiver_id, message: forwardedMessage });
+      
       console.log(`Message ${message.id} forwarded from ${sender_id} to ${receiver_id}`);
       await db.end();
     } catch (err) {
@@ -222,6 +245,35 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('typing', (data) => {
+    const { sender_id, receiver_id, is_typing } = data;
+    const receiverSocketId = onlineUsers.get(receiver_id.toString());
+    if (receiverSocketId) {
+      io.to(receiver_id.toString()).emit('user-typing', { sender_id, is_typing });
+    }
+  });
+
+  socket.on('group-typing', async (data) => {
+    const { sender_id, group_id, is_typing, username } = data;
+    try {
+      const db = await mysql_db();
+      const [members] = await db.execute(
+        `SELECT user_id FROM group_members WHERE group_id = ? AND user_id != ?`,
+        [group_id, sender_id]
+      );
+      await db.end();
+
+      members.forEach(({ user_id }) => {
+        const socketId = onlineUsers.get(user_id.toString());
+        if (socketId) {
+          io.to(socketId).emit('receive-group-typing', { group_id, sender_id, username, is_typing });
+        }
+      });
+    } catch (err) {
+      console.error('Error broadcasting group typing:', err);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Disconnected:', socket.id);
     for (let [user_id, socket_id] of onlineUsers.entries()) {
@@ -241,7 +293,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   methods: ['GET', 'POST', 'DELETE', 'PUT'],
   credentials: true
 }));

@@ -1,6 +1,472 @@
 .settingsContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #FAF7F2;
+  padding: 40px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Header Profile Row
+   ========================================================================== */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.headerProfile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatarLetter {
+  width: 80px;
+  height: 80px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0dbd1;
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #555;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.establishedLabel {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #888;
+  letter-spacing: 0.15em;
+}
+
+.headerTitle {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.1;
+  margin: 4px 0 10px 0;
+}
+
+.credentialsMeta {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.credValue {
+  color: #111;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.metaDivider {
+  color: #ccc;
+  font-weight: normal;
+}
+
+.divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.08);
+  margin-bottom: 35px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Sections & Layout
+   ========================================================================== */
+
+.settingsSection {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionHeaderGrid {
+  margin-bottom: 24px;
+}
+
+.sectionIntro {
   max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
+}
+
+.sectionTitle {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.sectionDesc {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Governance Cards Grid & Styles
+   ========================================================================== */
+
+.governanceGrid {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.governanceCard {
+  flex: 1;
+  min-width: 280px;
+  background: #FAF7F2;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 24px;
+  border-radius: 2px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.cardIcon {
+  font-size: 1.5rem;
+}
+
+.activeBadge {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 3px 8px;
+  border-radius: 2px;
+  color: #111;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.progressLabel {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #111;
+}
+
+.cardTitle {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 10px 0;
+}
+
+.cardText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  flex-grow: 1;
+}
+
+.outlineActionBtn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: 1px solid #111;
+  color: #111;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 2px;
   text-align: center;
+}
+
+.outlineActionBtn:hover {
+  background-color: #111;
+  color: #FAF7F2;
+}
+
+.progressBarWrapper {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.08);
+  border-radius: 3px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: #111;
+  border-radius: 3px;
+}
+
+/* ==========================================================================
+   Lineage Banner (Dark Graphic Callout)
+   ========================================================================== */
+
+.lineageBanner {
+  background-color: #111;
+  color: #FAF7F2;
+  border: 1px solid #111;
+  padding: 24px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-radius: 2px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.bannerInfo {
+  flex: 1;
+  min-width: 250px;
+}
+
+.bannerTitle {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+
+.bannerText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #ccc;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.bannerActionBtn {
+  background-color: #FAF7F2;
+  color: #111;
+  border: 1px solid #FAF7F2;
+  padding: 12px 20px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bannerActionBtn:hover {
+  background-color: #111;
+  color: #FAF7F2;
+  border-color: #FAF7F2;
+}
+
+.arrowIcon {
+  font-weight: bold;
+}
+
+/* ==========================================================================
+   System Metadata List (Monospaced Columns)
+   ========================================================================== */
+
+.systemMetadataRow {
+  display: flex;
+  gap: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.02);
+  padding: 16px 24px;
+  border-radius: 2px;
+  flex-wrap: wrap;
+}
+
+.metaCol {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaLabel {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #888;
+  letter-spacing: 0.08em;
+}
+
+.metaValue {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111;
+}
+
+/* ==========================================================================
+   Protocols List & Custom Switch
+   ========================================================================== */
+
+.protocolsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.protocolRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 16px;
+  gap: 20px;
+}
+
+.protocolInfo {
+  flex: 1;
+}
+
+.protocolName {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 4px 0;
+}
+
+.protocolDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Toggle Switch Control */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  transition: .3s;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #fff;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.switch input:checked + .slider {
+  background-color: #111;
+  border-color: #111;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(22px);
+  background-color: #FAF7F2;
+  border-color: #FAF7F2;
+}
+
+/* ==========================================================================
+   Page Footer
+   ========================================================================== */
+
+.pageFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  padding-top: 24px;
+  margin-top: 50px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.65rem;
+  color: #888;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footerCopyright {
+  text-transform: uppercase;
+}
+
+.footerLinksRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.footerDot {
+  color: #ccc;
+}
+
+.terminateText {
+  color: #c9302c;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.terminateText:hover {
+  color: #a90000;
 }

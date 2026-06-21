@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080',
 });
 
 const apiClient = {
@@ -71,9 +71,14 @@ const apiClient = {
   },
 
   getUserList: async () => {
-  const res = await API.get('/userlist/list');
-  return res.data;
-},
+    const res = await API.get('/userlist/list');
+    return res.data;
+  },
+
+  getMessageHistory: async (senderId, receiverId) => {
+    const res = await API.get(`/message/history/${senderId}/${receiverId}`);
+    return res.data;
+  },
 
 uploadProfileImage: async (userId, formData) => {
   const res = await API.post(`/user/upload/${userId}`, formData, {
@@ -84,6 +89,11 @@ uploadProfileImage: async (userId, formData) => {
 
 updatePassword: async (userId, newPassword) => {
   const res = await API.put(`/user/password/${userId}`, { password: newPassword });
+  return res.data;
+},
+
+resetPassword: async (username, email, newPassword) => {
+  const res = await API.post('/user/reset-password', { username, email, newPassword });
   return res.data;
 },
 

@@ -12,10 +12,22 @@ router.get('/', (req, res) => {
   res.send('🚀 User route is working!');
 });
 
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await userModel.findById(parseInt(id));
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 router.post(
   '/register',
   [
-    body('email').isEmail().withMessage('Invalid email').isLength({ min: 13 }),
+    body('email').isEmail().withMessage('Invalid email'),
     body('password').isLength({ min: 5 }).withMessage('Password must be at least 5 chars'),
     body('username').isLength({ min: 3 }).withMessage('Username must be at least 3 chars'),
   ],
@@ -141,6 +153,35 @@ router.put('/password/:id', async (req, res) => {
   } catch (err) {
     console.error('Password update error:', err);
     res.status(500).json({ message: 'Failed to update password' });
+  }
+});
+
+router.post('/reset-password', async (req, res) => {
+  const { username, email, newPassword } = req.body;
+
+  if (!username || !email || !newPassword) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    const user = await userModel.findByUsername(username);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (user.email !== email) {
+      return res.status(400).json({ message: 'Username and email do not match' });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    const db = await mysql_db();
+    await db.execute('UPDATE users SET password = ? WHERE id = ?', [hashed, user.id]);
+    await db.end();
+
+    return res.status(200).json({ message: 'Password reset successful' });
+  } catch (err) {
+    console.error('Password reset error:', err);
+    return res.status(500).json({ message: 'Server error during password reset' });
   }
 });
 

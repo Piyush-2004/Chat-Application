@@ -30,20 +30,14 @@ function LoginForm({ setUser }) {
       const response = await apiClient.login(formData);
       console.log('Login response:', response);
 
-      const res = await apiClient.login(formData);
-localStorage.setItem('user', JSON.stringify(res.user)); // must include image
-setUser(res.user); // or set in context/state
-navigate('/chat'); // or wherever
-
-
-      // Store user data in localStorage
+      // Store user data in localStorage (including profile image details)
       localStorage.setItem('user', JSON.stringify(response.user));
 
       // Set user state
       setUser(response.user);
 
-      // Navigate to user list
-      navigate('/users');
+      // Navigate to correct chat view
+      navigate('/chat');
     } catch (err) {
       console.error('Login error:', err);
       if (err.response) {
@@ -61,7 +55,7 @@ navigate('/chat'); // or wherever
   return (
     <div className={styles.loginContainer}>
       <form onSubmit={handleSubmit} className={styles.loginForm}>
-        <h2>Login</h2>
+        <h2 className={styles.formTitle}>Login</h2>
 
         <ErrorMessage message={error} />
 
@@ -83,8 +77,14 @@ navigate('/chat'); // or wherever
           placeholder="Enter your password"
         />
 
+        <div style={{ textAlign: 'right', marginBottom: '15px' }}>
+          <Link to="/forgot-password" className={styles.forgotLink}>
+            Forgot Password?
+          </Link>
+        </div>
+
         <button type="submit" disabled={loading} className={styles.submitButton}>
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? 'Logging in...' : 'LOGIN'}
         </button>
 
         <p className={styles.switchForm}>

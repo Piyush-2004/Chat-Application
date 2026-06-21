@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from '../css/ForwardModal.module.css'; // optional for styling
-import axios from 'axios';
+import apiClient from '../helper/apiClient';
 
 const ForwardModal = ({ isOpen, onClose, onForward, currentUserId, message }) => {
   const [users, setUsers] = useState([]);
@@ -8,8 +8,8 @@ const ForwardModal = ({ isOpen, onClose, onForward, currentUserId, message }) =>
 
   useEffect(() => {
     if (isOpen) {
-      axios.get('http://localhost:8080/userlist/list').then((res) => {
-        const filtered = res.data.filter(user => user.id !== currentUserId);
+      apiClient.getUserList().then((data) => {
+        const filtered = data.filter(user => user.id !== currentUserId);
         setUsers(filtered);
       });
     }

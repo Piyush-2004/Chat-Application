@@ -60,8 +60,8 @@ function RegistrationForm({ setUser }) {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Register</h2>
       <form className={styles.form} onSubmit={handleSubmit}>
+        <h2 className={styles.title}>Register</h2>
         <FormField
           label="Username"
           type="text"
@@ -88,7 +88,7 @@ function RegistrationForm({ setUser }) {
         />
         <ErrorMessage message={error} />
         <button className={styles.submit} type="submit" disabled={loading}>
-          {loading ? 'Processing...' : 'Register'}
+          {loading ? 'REGISTERING...' : 'REGISTER'}
         </button>
         <p className={styles.toggle}>
           Already have an account? <Link className={styles.toggleLink} to="/login">Login</Link>

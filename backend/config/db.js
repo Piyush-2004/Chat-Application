@@ -42,8 +42,10 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+let pool = null;
+
 async function mysql_db() {
-  try {
+  if (!pool) {
     // Enhanced connection configuration for production/Aiven
     const connectionConfig = {
       host: process.env.DB_HOST,
@@ -55,8 +57,6 @@ async function mysql_db() {
       // SSL Configuration for Aiven
       ssl: {
         rejectUnauthorized: false,
-        // For Aiven, you might need to download ca.pem certificate
-        // ca: fs.readFileSync('/path/to/ca.pem')
       },
 
       // Timeout configurations to prevent ETIMEDOUT
@@ -68,53 +68,55 @@ async function mysql_db() {
       charset: 'utf8mb4',
       timezone: 'Z',
 
-      // Reconnection settings
-      reconnect: true,
-      maxReconnects: 3,
-
       // Keep alive to prevent connection drops
       keepAliveInitialDelay: 0,
       enableKeepAlive: true,
+
+      // Connection Pool settings
+      waitForConnections: true,
+      connectionLimit: 10,
+      maxIdle: 10,
+      idleTimeout: 60000,
+      queueLimit: 0
     };
 
-    console.log('Attempting to connect to MySQL database...');
+    console.log('Attempting to initialize MySQL connection pool...');
     console.log('Host:', process.env.DB_HOST);
     console.log('Database:', process.env.DB_NAME);
     console.log('Port:', process.env.DB_PORT || 3306);
 
-    const db = await mysql.createConnection(connectionConfig);
-
-    // Test the connection
-    await db.execute('SELECT 1');
-    console.log('✅ Successfully connected to MySQL database:', process.env.DB_NAME);
-
-    return db;
-
-  } catch (error) {
-    console.error('❌ Database connection error:', error);
-    console.error('Connection details:');
-    console.error('- Host:', process.env.DB_HOST);
-    console.error('- User:', process.env.DB_USER);
-    console.error('- Database:', process.env.DB_NAME);
-    console.error('- Port:', process.env.DB_PORT || 3306);
-
-    // More specific error logging
-    if (error.code === 'ETIMEDOUT') {
-      console.error('');
-      console.error('🚨 CONNECTION TIMEOUT ERROR:');
-      console.error('This usually means:');
-      console.error('1. Database server is not accessible from this network');
-      console.error('2. Incorrect host/port in environment variables');
-      console.error('3. Firewall blocking the connection');
-      console.error('4. SSL configuration issue');
-      console.error('');
-      console.error('💡 SOLUTIONS:');
-      console.error('1. Verify your Aiven service is running and accessible');
-      console.error('2. Check environment variables are correctly set');
-      console.error('3. Ensure Aiven service allows connections from 0.0.0.0/0');
-      console.error('4. Try connecting from your local machine first');
+    try {
+      pool = mysql.createPool(connectionConfig);
+      
+      // Test the connection
+      const testConn = await pool.getConnection();
+      await testConn.execute('SELECT 1');
+      testConn.release();
+      console.log('✅ Successfully initialized and tested MySQL connection pool:', process.env.DB_NAME);
+    } catch (error) {
+      console.error('❌ Database connection pool initialization error:', error);
+      throw error;
     }
+  }
 
+  try {
+    const connection = await pool.getConnection();
+    
+    // Return wrapped connection to preserve compatibility with existing db.end() calls
+    return {
+      execute: async (sql, params) => {
+        return connection.execute(sql, params);
+      },
+      query: async (sql, params) => {
+        return connection.query(sql, params);
+      },
+      end: async () => {
+        // Release connection back to the pool
+        connection.release();
+      }
+    };
+  } catch (error) {
+    console.error('❌ Error acquiring database connection from pool:', error);
     throw error;
   }
 }

@@ -86,6 +86,7 @@ const setupDatabase = async () => {
                 sender_id INT NOT NULL,
                 text TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                reactions JSON,
                 FOREIGN KEY (group_id) REFERENCES \`groups\`(id) ON DELETE CASCADE,
                 FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
             );
@@ -131,6 +132,7 @@ const setupDatabase = async () => {
         console.log('  - group_messages');
 
         await db.end();
+        process.exit(0);
 
     } catch (error) {
         console.error('❌ Database setup failed:', error);

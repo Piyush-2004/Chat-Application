@@ -44,6 +44,21 @@ const userModel = {
       await db.end();
       throw error;
     }
+  },
+
+  async findById(id) {
+    const db = await mysql_db();
+    try {
+      const [rows] = await db.execute(
+        'SELECT id, username, email, image, created_at FROM users WHERE id = ?',
+        [id]
+      );
+      await db.end();
+      return rows[0];
+    } catch (error) {
+      await db.end();
+      throw error;
+    }
   }
 };
 

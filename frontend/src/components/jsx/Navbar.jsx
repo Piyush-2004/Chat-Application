@@ -1,108 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import apiClient from '../helper/apiClient.js';
 import socket from '../helper/socket.js';
 import styles from '../css/Navbar.module.css';
 
 function Navbar({ user, setUser }) {
-  // const [currentUser, setCurrentUser] = useState(null);
-  const currentUser = user;
   const [profileImage, setProfileImage] = useState('https://via.placeholder.com/40');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Fetch user from localStorage and profile image
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      console.log('Navbar: Current user:', parsedUser);
-      // setCurrentUser(parsedUser);
-
-      // Fetch user details for profile image
-      apiClient.getUser(parsedUser.id)
+    if (user) {
+      apiClient.getUser(user.id)
         .then(data => {
-          setProfileImage(data.image || 'https://via.placeholder.com/40');
-          console.log('Navbar: Profile image set:', data.image);
+          if (data.image) {
+            setProfileImage(data.image);
+          }
         })
         .catch(err => {
           console.error('Navbar: Error fetching user image:', err);
         });
-    } else {
-      console.warn('Navbar: No user data in localStorage');
     }
-  }, []);
+  }, [user]);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(prev => !prev);
-  };
-
-  // Handle logout
   const handleLogout = () => {
-    console.log('Navbar: Logging out user:', currentUser?.id);
     localStorage.removeItem('user');
-    socket.emit('unregister', { user_id: currentUser?.id });
+    if (user) {
+      socket.emit('unregister', { user_id: user.id });
+    }
     socket.disconnect();
     setUser(null);
     navigate('/login');
-    setIsDropdownOpen(false);
   };
 
-  return (
-    <nav className={styles.navbar}>
-      <div className={styles.navbarBrand}>
-        <Link to="/" className={styles.brandLink}>
-          TeamTalk
-        </Link>
-      </div>
-      <div className={styles.navbarMenu}>
-        <span className={styles.userInfo}>
-          Welcome{currentUser?.username ? `, ${currentUser.username}` : ''}
-        </span>
+  // If user is authenticated, render the vertical left sidebar navigation
+  if (user) {
+    return (
+      <aside className={styles.sidebarNav}>
+        <div className={styles.sidebarBrand}>
+          <Link to="/" className={styles.brandTitle}>The Archive</Link>
+          <span className={styles.brandSubtitle}>CURATED MESSAGING</span>
+        </div>
 
-        {currentUser ? (
-          <>
-            <Link to="/users" className={styles.navLink}>User List</Link>
-            <div className={styles.profileContainer}>
-              <img
-                src={`http://localhost:8080${currentUser?.image || '/default.png'}`}
-                alt="Profile"
-                className={styles.profileImage}
-                onClick={toggleDropdown}
-              />
+        <button onClick={() => navigate('/users')} className={styles.newEntryBtn}>
+          ＋ NEW ENTRY
+        </button>
 
-              {isDropdownOpen && (
-                <div className={styles.dropdownMenu}>
-                  <Link
-                    to="/profile"
-                    className={styles.dropdownItem}
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    My Profile
-                  </Link>
-                  <Link
-                    to="/settings"
-                    className={styles.dropdownItem}
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Settings
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className={styles.dropdownItem}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
+        <nav className={styles.sidebarMenu}>
+          <Link
+            to="/users"
+            className={`${styles.sidebarLink} ${location.pathname.startsWith('/users') || location.pathname.startsWith('/chat') ? styles.activeLink : ''}`}
+          >
+            <span className={styles.menuIcon}>■</span> ARCHIVES
+          </Link>
+          <Link
+            to="/profile"
+            className={`${styles.sidebarLink} ${location.pathname === '/profile' ? styles.activeLink : ''}`}
+          >
+            <span className={styles.menuIcon}>▤</span> DIRECTORY
+          </Link>
+          <Link
+            to="/settings"
+            className={`${styles.sidebarLink} ${location.pathname === '/settings' ? styles.activeLink : ''}`}
+          >
+            <span className={styles.menuIcon}>⚙</span> SETTINGS
+          </Link>
+        </nav>
+
+        <div className={styles.sidebarFooter}>
+          <div className={styles.footerLinksRow}>
+            <Link to="/settings" className={styles.footerLink}>SETTINGS</Link>
+            <span className={styles.footerDivider}>•</span>
+            <button onClick={handleLogout} className={styles.logoutBtn}>LOGOUT</button>
+          </div>
+          
+          <div className={styles.userProfileBlock}>
+            <img
+              src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}${user.image || '/default.png'}`}
+              alt="Profile"
+              className={styles.userAvatar}
+              onClick={() => navigate('/profile')}
+            />
+            <div className={styles.userInfoBlock} onClick={() => navigate('/profile')}>
+              <div className={styles.userName}>{user.username}</div>
+              <div className={styles.userRole}>Lead Archivist</div>
             </div>
-          </>
-        ) : (
-          <Link to="/login" className={styles.navLink}>Login</Link>
-        )}
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
+  // If public visitor (unauthenticated), render the horizontal top header navigation
+  return (
+    <header className={styles.topNav}>
+      <div className={styles.brandGroup}>
+        <Link to="/" className={styles.topBrandTitle}>The Archive</Link>
+        <span className={styles.topBrandSubtitle}>CURATED MESSAGING</span>
       </div>
-    </nav>
+      <nav className={styles.topMenu}>
+        <Link to="/login" className={styles.topNavLink}>LOGIN</Link>
+        <Link to="/register" className={styles.topNavLink}>REGISTER</Link>
+      </nav>
+    </header>
   );
 }
 

@@ -1,76 +1,309 @@
 .profileContainer {
-  max-width: 500px;
-  margin: 40px auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #FAF7F2;
+  padding: 40px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Identity Header (Large Serif Branding & Portrait)
+   ========================================================================== */
+
+.identityHeader {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.portraitWrapper {
+  width: 110px;
+  height: 110px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0dbd1;
+  overflow: hidden;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.portraitImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%);
+}
+
+.portraitFallback {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #555;
+  user-select: none;
+}
+
+.identityDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.establishedLabel {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  font-weight: bold;
+  color: #888;
+  letter-spacing: 0.15em;
+}
+
+.curatorName {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #111;
+  line-height: 1.1;
+  margin: 4px 0 10px 0;
+}
+
+.credentialsMeta {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.7rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.credValue {
+  color: #111;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.metaDivider {
+  color: #ccc;
+  font-weight: normal;
+}
+
+.divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.08);
+  margin-bottom: 35px;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Grids & Content Cards
+   ========================================================================== */
+
+.profileGrid {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.gridLeft,
+.gridRight {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.card {
+  background: #FAF7F2;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   padding: 24px;
-  background-color: #FF7043;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+  border-radius: 2px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.01);
 }
 
-h2 {
-  text-align: center;
-  color: #ffffff;
+.sectionTitle {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 8px;
+}
+
+.cardDescription {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: #666;
   margin-bottom: 20px;
+  line-height: 1.4;
 }
 
-.section {
-  margin-bottom: 25px;
+.detailsList {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.profileImg {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #ff9372;
-  margin-bottom: 10px;
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 8px;
+  font-size: 0.85rem;
 }
 
-input[type="file"] {
-  font-size: 0.9rem;
+.detailLabel {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: #666;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
-input[type="password"] {
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border 0.3s ease;
-}
-
-input[type="password"]:focus {
-  border-color: #ff9372;
-  outline: none;
-  box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
-}
-
-button {
-  padding: 10px 16px;
-  font-size: 1rem;
-  background-color: #ffffff;
-  color: rgb(0, 0, 0);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background-color: #ff9372;
-}
-
-.status {
-  margin-top: 10px;
-  color: #ffffff;
+.detailVal {
+  font-family: 'Courier Prime', monospace;
   font-weight: bold;
-  font-size: 0.9rem;
+  color: #111;
 }
 
+/* File Upload Controls */
+.uploadBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
+.fileUploadLabel {
+  display: inline-block;
+  padding: 10px 14px;
+  border: 1px solid #111;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  background: none;
+  color: #111;
+  border-radius: 2px;
+}
+
+.fileUploadLabel:hover {
+  background-color: #111;
+  color: #FAF7F2;
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileName {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.75rem;
+  color: #666;
+  word-break: break-all;
+  text-align: center;
+}
+
+/* Security Form Controls */
+.securityForm {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputLabel {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 0.05em;
+}
+
+.textInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.01);
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  border-radius: 2px;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.textInput:focus {
+  border-color: rgba(0, 0, 0, 0.4);
+  background-color: #fff;
+}
+
+.actionBtn {
+  padding: 10px 14px;
+  background-color: #111;
+  color: #FAF7F2;
+  border: 1px solid #111;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 2px;
+}
+
+.actionBtn:hover {
+  background-color: #333;
+}
+
+.actionBtn:disabled {
+  background-color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+  color: #666;
+}
+
+.statusLine {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.75rem;
+  color: #d9534f;
+  margin-top: 6px;
+  font-weight: bold;
+}
+
+/* Footer Section */
+.profileFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 20px;
+  margin-top: 40px;
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.65rem;
+  color: #888;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.errorState {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.4rem;
+  color: #d9534f;
+  height: 100%;
+  background-color: #FAF7F2;
+}

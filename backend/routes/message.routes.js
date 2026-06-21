@@ -1,20 +1,9 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import messageModel from '../models/message.model.js';
+import mysql_db from '../config/db.js';
 
 const router = express.Router();
-
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await userModel.getUserById(parseInt(id));
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json(user);
-  } catch (err) {
-    console.error('Error fetching user:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 
 
@@ -124,16 +113,50 @@ router.post('/:id/reaction',
     try {
       const message = await messageModel.getMessageById(parseInt(id));
       if (message) {
-        const reactions = message.reactions ? [...message.reactions] : [];
-        reactions.push({ userId, emoji });
+        let reactions = message.reactions ? [...message.reactions] : [];
+        const existingIndex = reactions.findIndex(r => r.userId === userId && r.emoji === emoji);
+        
+        if (existingIndex > -1) {
+          reactions.splice(existingIndex, 1);
+          console.log(`Reaction removed from one-on-one message ${id}`);
+        } else {
+          reactions.push({ userId, emoji });
+          console.log(`Reaction added to one-on-one message ${id}`);
+        }
 
         await messageModel.updateMessageReactions(parseInt(id), JSON.stringify(reactions));
         req.io.emit('reaction-added', { messageId: parseInt(id), reactions });
-
-        console.log(`Reaction added to message ${id}`);
-        res.status(200).send('Reaction added');
+        res.status(200).send('Reaction updated');
       } else {
-        res.status(404).send('Message not found');
+        // Check group message
+        const db = await mysql_db();
+        const [groupRows] = await db.execute('SELECT reactions FROM group_messages WHERE id = ?', [parseInt(id)]);
+        if (groupRows.length > 0) {
+          const groupMsg = groupRows[0];
+          let reactions = [];
+          if (typeof groupMsg.reactions === 'string') {
+            reactions = JSON.parse(groupMsg.reactions);
+          } else if (Array.isArray(groupMsg.reactions)) {
+            reactions = groupMsg.reactions;
+          }
+
+          const existingIndex = reactions.findIndex(r => r.userId === userId && r.emoji === emoji);
+          if (existingIndex > -1) {
+            reactions.splice(existingIndex, 1);
+            console.log(`Reaction removed from group message ${id}`);
+          } else {
+            reactions.push({ userId, emoji });
+            console.log(`Reaction added to group message ${id}`);
+          }
+
+          await db.execute('UPDATE group_messages SET reactions = ? WHERE id = ?', [JSON.stringify(reactions), parseInt(id)]);
+          await db.end();
+          req.io.emit('reaction-added', { messageId: parseInt(id), reactions });
+          res.status(200).send('Reaction updated');
+        } else {
+          await db.end();
+          res.status(404).send('Message not found');
+        }
       }
     } catch (err) {
       console.error('Error adding reaction:', err);
