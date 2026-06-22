@@ -8,15 +8,15 @@ import userRouter from './routes/user.routes.js';
 import messageRouter from './routes/message.routes.js';
 import userlistRouter from './routes/userlist.routes.js';
 import messageModel from './models/message.model.js';
-import './config/createUserTable.js';
-import './config/createMessageTable.js';
-import './config/createUserListTable.js';
-import './config/createGroupTable.js';
+import { initDb } from './config/initDb.js';
 import mysql_db from './config/db.js';
 import groupRouter from './routes/group.routes.js';
 import bcrypt from 'bcryptjs';
 
 dotenv.config();
+
+// Initialize Database sequentially on startup
+initDb();
 
 const app = express();
 const server = createServer(app);
